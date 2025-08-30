@@ -43,6 +43,16 @@ data class SignUpRequest(
 )
 
 @Serializable
+data class RefreshTokenRequest(
+    val refreshToken: String
+)
+
+@Serializable
+data class ForgotPasswordRequest(
+    val email: String
+)
+
+@Serializable
 data class PortfolioSummary(
     val totalValueTRY: Double,
     val todayChangePercent: Double,

@@ -12,6 +12,8 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen() {
+    var showImportMessage by remember { mutableStateOf(false) }
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -36,7 +38,7 @@ fun HistoryScreen() {
         Spacer(modifier = Modifier.height(32.dp))
         
         Button(
-            onClick = { /* TODO: Implement file import */ },
+            onClick = { showImportMessage = true },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Import from File")
@@ -99,5 +101,19 @@ fun HistoryScreen() {
                 )
             }
         }
+    }
+    
+    // Import File Dialog
+    if (showImportMessage) {
+        AlertDialog(
+            onDismissRequest = { showImportMessage = false },
+            title = { Text("Import from File") },
+            text = { Text("File import functionality will be implemented in a future update.") },
+            confirmButton = {
+                TextButton(onClick = { showImportMessage = false }) {
+                    Text("OK")
+                }
+            }
+        )
     }
 }

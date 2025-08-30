@@ -4,6 +4,7 @@ import com.yuksel.investmenttracker.domain.enums.OAuthProvider;
 import com.yuksel.investmenttracker.dto.request.ForgotPasswordRequest;
 import com.yuksel.investmenttracker.dto.request.LoginRequest;
 import com.yuksel.investmenttracker.dto.request.OAuthLoginRequest;
+import com.yuksel.investmenttracker.dto.request.RefreshTokenRequest;
 import com.yuksel.investmenttracker.dto.request.ResetPasswordRequest;
 import com.yuksel.investmenttracker.dto.request.SignUpRequest;
 import com.yuksel.investmenttracker.dto.response.AuthResponse;
@@ -69,6 +70,13 @@ public class AuthController {
         
         authService.resetPassword(request.getToken(), request.getNewPassword());
         return ResponseEntity.ok("Password reset successfully. Please login with your new password.");
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh access token")
+    public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        AuthResponse authResponse = authService.refreshToken(request.getRefreshToken());
+        return ResponseEntity.ok(authResponse);
     }
 
     @GetMapping("/me")

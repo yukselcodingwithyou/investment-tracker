@@ -82,8 +82,12 @@ class AuthService: ObservableObject {
         isAuthenticated = false
     }
     
+    func handleOAuthSuccess(_ response: AuthResponse) async {
+        await handleAuthResponse(response)
+    }
+    
     private func handleAuthResponse(_ response: AuthResponse) async {
-        keychainService.saveTokens(
+        keychainService.storeTokens(
             accessToken: response.accessToken,
             refreshToken: response.refreshToken
         )

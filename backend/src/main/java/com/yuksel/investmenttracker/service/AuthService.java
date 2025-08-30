@@ -209,6 +209,32 @@ public class AuthService {
         log.info("Password reset successfully for user: {}", user.getEmail());
     }
     
+    @Transactional
+    public AuthResponse refreshToken(String refreshToken) {
+        // Find all valid auth tokens and check against the provided refresh token
+        List<AuthToken> validTokens = authTokenRepository.findAll().stream()
+                .filter(token -> token.getExpiresAt().isAfter(LocalDateTime.now()))
+                .filter(token -> passwordEncoder.matches(refreshToken, token.getRefreshTokenHash()))
+                .toList();
+        
+        if (validTokens.isEmpty()) {
+            throw new RuntimeException("Invalid or expired refresh token");
+        }
+        
+        AuthToken authToken = validTokens.get(0);
+        
+        // Get user
+        User user = userRepository.findById(authToken.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Delete old token
+        authTokenRepository.delete(authToken);
+        
+        // Create new authentication and return new tokens
+        Authentication authentication = createAuthentication(user);
+        return createAuthResponse(authentication);
+    }
+    
     private User createUserFromOAuth(OAuthUserInfo userInfo, OAuthProvider provider) {
         User user = new User();
         user.setName(userInfo.getName());
