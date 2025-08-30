@@ -13,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -32,6 +35,8 @@ public class PortfolioService {
     private final PriceService priceService;
 
     @Transactional
+    @CacheEvict(value = {"portfolio-summary", "portfolio-analytics", "asset-allocation", "top-movers"}, 
+                key = "#root.target.getCurrentUserId()")
     public AcquisitionLot addAcquisition(AcquisitionRequest request) {
         String userId = getCurrentUserId();
 
@@ -63,6 +68,7 @@ public class PortfolioService {
         return acquisitionLotRepository.save(acquisitionLot);
     }
 
+    @Cacheable(value = "portfolio-summary", key = "#root.target.getCurrentUserId()")
     public PortfolioSummaryResponse getPortfolioSummary() {
         String userId = getCurrentUserId();
         
@@ -136,6 +142,7 @@ public class PortfolioService {
         return response;
     }
 
+    @Cacheable(value = "portfolio-history", key = "#root.target.getCurrentUserId() + '_' + #period")
     public List<PortfolioHistoryResponse> getPortfolioHistory(String period) {
         String userId = getCurrentUserId();
         LocalDate endDate = LocalDate.now();
@@ -173,6 +180,7 @@ public class PortfolioService {
         return historyData;
     }
     
+    @Cacheable(value = "asset-allocation", key = "#root.target.getCurrentUserId()")
     public List<AssetAllocationResponse> getAssetAllocation() {
         String userId = getCurrentUserId();
         List<AcquisitionLot> acquisitions = acquisitionLotRepository.findByUserId(userId);
@@ -222,6 +230,7 @@ public class PortfolioService {
                 .collect(Collectors.toList());
     }
     
+    @Cacheable(value = "top-movers", key = "#root.target.getCurrentUserId() + '_' + #limit")
     public List<TopMoversResponse> getTopMovers(int limit) {
         String userId = getCurrentUserId();
         List<AcquisitionLot> acquisitions = acquisitionLotRepository.findByUserId(userId);
@@ -248,6 +257,7 @@ public class PortfolioService {
                 .collect(Collectors.toList());
     }
     
+    @Cacheable(value = "portfolio-analytics", key = "#root.target.getCurrentUserId() + '_' + #period")
     public PortfolioAnalyticsResponse getPortfolioAnalytics(String period) {
         PortfolioAnalyticsResponse analytics = new PortfolioAnalyticsResponse();
         
