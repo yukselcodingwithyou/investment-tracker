@@ -44,6 +44,18 @@ fun HistoryScreen() {
             Text("Import from File")
         }
         
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        OutlinedButton(
+            onClick = { 
+                // TODO: Implement manual data entry
+                // This could navigate to a form for manual acquisition entry
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Add Acquisition Manually")
+        }
+        
         Spacer(modifier = Modifier.height(24.dp))
         
         Card(
@@ -108,7 +120,16 @@ fun HistoryScreen() {
         AlertDialog(
             onDismissRequest = { showImportMessage = false },
             title = { Text("Import from File") },
-            text = { Text("File import functionality will be implemented in a future update.") },
+            text = { 
+                Column {
+                    Text("File import functionality will be available soon.")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Supported formats:\n• CSV files from brokers\n• Excel spreadsheets\n• Standard acquisition data\n\nUpcoming features:\n• File picker integration\n• Data validation\n• Preview before import",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            },
             confirmButton = {
                 TextButton(onClick = { showImportMessage = false }) {
                     Text("OK")

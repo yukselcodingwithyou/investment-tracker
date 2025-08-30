@@ -58,6 +58,31 @@ fun DashboardScreen(navController: NavController) {
                 ) {
                     Text("+ Add Acquisition")
                 }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                OutlinedButton(
+                    onClick = { 
+                        // TODO: Navigate to portfolio screen when implemented
+                        // navController.navigate("portfolio")
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("View Portfolio")
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                OutlinedButton(
+                    onClick = { 
+                        // TODO: Navigate to history/import screen  
+                        // This is already handled by the bottom navigation
+                        navController.navigate("history")
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Import Data")
+                }
             }
         }
     }
@@ -67,7 +92,16 @@ fun DashboardScreen(navController: NavController) {
         AlertDialog(
             onDismissRequest = { showAddAcquisitionMessage = false },
             title = { Text("Add Acquisition") },
-            text = { Text("Add acquisition functionality will be implemented in a future update.") },
+            text = { 
+                Column {
+                    Text("Add acquisition functionality will be available soon.")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Features coming soon:\n• Asset search and selection\n• Acquisition date picker\n• Price and quantity input\n• Fee calculation\n• Portfolio integration",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            },
             confirmButton = {
                 TextButton(onClick = { showAddAcquisitionMessage = false }) {
                     Text("OK")

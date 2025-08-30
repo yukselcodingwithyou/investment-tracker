@@ -99,8 +99,13 @@ fun AuthScreen(
                 TextButton(
                     onClick = {
                         if (forgotPasswordEmail.isNotBlank()) {
-                            // For now, just show a success message
-                            authViewModel.handleOAuthError("Password reset instructions would be sent to $forgotPasswordEmail")
+                            // TODO: Implement actual forgot password API call
+                            // This would involve:
+                            // 1. Validating email format
+                            // 2. Calling backend API endpoint
+                            // 3. Handling success/error responses
+                            // 4. Email service integration on backend
+                            authViewModel.handleOAuthError("Password reset email would be sent to $forgotPasswordEmail. This feature requires email service integration.")
                             showForgotPasswordDialog = false
                             forgotPasswordEmail = ""
                         }
@@ -232,8 +237,13 @@ private fun LoginForm(
         // Social login buttons
         OutlinedButton(
             onClick = { 
-                // Google Sign In placeholder - would require Google Sign-In SDK
-                authViewModel.handleOAuthError("Google Sign-In not yet implemented. Please configure Google Sign-In SDK.")
+                // TODO: Implement Google Sign-In
+                // This would require:
+                // 1. Adding Google Sign-In SDK dependency
+                // 2. Configuring OAuth client ID
+                // 3. Implementing GoogleSignInClient
+                // 4. Handling sign-in result and token exchange
+                authViewModel.handleOAuthError("Google Sign-In SDK integration pending. This will enable one-tap sign-in with your Google account.")
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -246,8 +256,14 @@ private fun LoginForm(
         
         Button(
             onClick = { 
-                // Apple Sign In placeholder - would require Apple Sign-In
-                authViewModel.handleOAuthError("Apple Sign-In not yet implemented. Apple Sign-In is only available on iOS.")
+                // TODO: Implement Apple Sign-In
+                // Note: Apple Sign-In is primarily for iOS, but Android support exists
+                // This would require:
+                // 1. Apple Developer account setup
+                // 2. Service ID configuration
+                // 3. JWT token handling
+                // 4. Apple's REST API integration
+                authViewModel.handleOAuthError("Apple Sign-In integration pending. This feature requires Apple Developer setup and is primarily designed for iOS apps.")
             },
             modifier = Modifier
                 .fillMaxWidth()
