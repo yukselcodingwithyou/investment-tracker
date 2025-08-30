@@ -12,6 +12,8 @@ import androidx.navigation.NavController
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(navController: NavController) {
+    var showAddAcquisitionMessage by remember { mutableStateOf(false) }
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -51,12 +53,26 @@ fun DashboardScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 Button(
-                    onClick = { /* TODO: Navigate to Add Acquisition */ },
+                    onClick = { showAddAcquisitionMessage = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("+ Add Acquisition")
                 }
             }
         }
+    }
+    
+    // Add Acquisition Dialog
+    if (showAddAcquisitionMessage) {
+        AlertDialog(
+            onDismissRequest = { showAddAcquisitionMessage = false },
+            title = { Text("Add Acquisition") },
+            text = { Text("Add acquisition functionality will be implemented in a future update.") },
+            confirmButton = {
+                TextButton(onClick = { showAddAcquisitionMessage = false }) {
+                    Text("OK")
+                }
+            }
+        )
     }
 }

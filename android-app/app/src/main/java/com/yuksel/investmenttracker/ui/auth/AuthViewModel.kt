@@ -101,6 +101,10 @@ class AuthViewModel @Inject constructor(
         _authState.value = _authState.value.copy(errorMessage = null)
     }
     
+    fun handleOAuthError(errorMessage: String) {
+        _authState.value = _authState.value.copy(errorMessage = errorMessage)
+    }
+    
     private suspend fun handleAuthResponse(response: AuthResponse) {
         tokenManager.saveTokens(response.accessToken, response.refreshToken)
         _authState.value = _authState.value.copy(

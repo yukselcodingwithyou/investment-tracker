@@ -49,7 +49,12 @@ class TokenManager @Inject constructor(
     }
     
     suspend fun refreshToken(): Boolean {
-        // TODO: Implement refresh token logic
+        val refreshToken = getRefreshToken() ?: return false
+        
+        // For now, just return false to force re-login
+        // In a full implementation, this would make an HTTP call to refresh the token
+        // without causing circular dependencies
+        clearTokens()
         return false
     }
     

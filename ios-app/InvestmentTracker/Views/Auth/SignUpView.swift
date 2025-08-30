@@ -2,12 +2,14 @@ import SwiftUI
 
 struct SignUpView: View {
     @EnvironmentObject var authService: AuthService
+    @StateObject private var oauthService = OAuthService.shared
     @Binding var showingSignUp: Bool
     
     @State private var name = ""
     @State private var email = ""
     @State private var password = ""
     @State private var confirmPassword = ""
+    @State private var oauthError: String?
     
     var body: some View {
         ScrollView {
@@ -100,7 +102,14 @@ struct SignUpView: View {
                 // Social Login Buttons
                 VStack(spacing: 12) {
                     Button(action: {
-                        // TODO: Implement Google Sign In
+                        Task {
+                            do {
+                                let authResponse = try await oauthService.signInWithGoogle()
+                                await authService.handleOAuthSuccess(authResponse)
+                            } catch {
+                                oauthError = error.localizedDescription
+                            }
+                        }
                     }) {
                         HStack {
                             Image(systemName: "globe")
@@ -120,7 +129,14 @@ struct SignUpView: View {
                     }
                     
                     Button(action: {
-                        // TODO: Implement Apple Sign In
+                        Task {
+                            do {
+                                let authResponse = try await oauthService.signInWithApple()
+                                await authService.handleOAuthSuccess(authResponse)
+                            } catch {
+                                oauthError = error.localizedDescription
+                            }
+                        }
                     }) {
                         HStack {
                             Image(systemName: "applelogo")
@@ -152,12 +168,13 @@ struct SignUpView: View {
             .padding(.horizontal, 24)
         }
         .navigationBarHidden(true)
-        .alert("Error", isPresented: .constant(authService.errorMessage != nil)) {
+        .alert("Error", isPresented: .constant(authService.errorMessage != nil || oauthError != nil)) {
             Button("OK") {
                 authService.errorMessage = nil
+                oauthError = nil
             }
         } message: {
-            Text(authService.errorMessage ?? "")
+            Text(authService.errorMessage ?? oauthError ?? "")
         }
     }
     

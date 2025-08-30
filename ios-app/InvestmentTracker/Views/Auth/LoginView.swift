@@ -2,11 +2,13 @@ import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject var authService: AuthService
+    @StateObject private var oauthService = OAuthService.shared
     @Binding var showingSignUp: Bool
     
     @State private var emailOrUsername = ""
     @State private var password = ""
     @State private var showingForgotPassword = false
+    @State private var oauthError: String?
     
     var body: some View {
         ScrollView {
@@ -96,7 +98,14 @@ struct LoginView: View {
                 // Social Login Buttons
                 VStack(spacing: 12) {
                     Button(action: {
-                        // TODO: Implement Google Sign In
+                        Task {
+                            do {
+                                let authResponse = try await oauthService.signInWithGoogle()
+                                await authService.handleOAuthSuccess(authResponse)
+                            } catch {
+                                oauthError = error.localizedDescription
+                            }
+                        }
                     }) {
                         HStack {
                             Image(systemName: "globe")
@@ -116,7 +125,14 @@ struct LoginView: View {
                     }
                     
                     Button(action: {
-                        // TODO: Implement Apple Sign In
+                        Task {
+                            do {
+                                let authResponse = try await oauthService.signInWithApple()
+                                await authService.handleOAuthSuccess(authResponse)
+                            } catch {
+                                oauthError = error.localizedDescription
+                            }
+                        }
                     }) {
                         HStack {
                             Image(systemName: "applelogo")
@@ -148,12 +164,13 @@ struct LoginView: View {
             .padding(.horizontal, 24)
         }
         .navigationBarHidden(true)
-        .alert("Error", isPresented: .constant(authService.errorMessage != nil)) {
+        .alert("Error", isPresented: .constant(authService.errorMessage != nil || oauthError != nil)) {
             Button("OK") {
                 authService.errorMessage = nil
+                oauthError = nil
             }
         } message: {
-            Text(authService.errorMessage ?? "")
+            Text(authService.errorMessage ?? oauthError ?? "")
         }
         .sheet(isPresented: $showingForgotPassword) {
             ForgotPasswordView()

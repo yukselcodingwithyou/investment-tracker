@@ -117,7 +117,46 @@ class APIClient: ObservableObject {
             return false
         }
         
-        // TODO: Implement refresh token logic
-        return false
+        do {
+            // Create refresh token request
+            let refreshRequest = RefreshTokenRequest(refreshToken: refreshToken)
+            
+            // Make request without authorization header (since we're refreshing)
+            guard let url = URL(string: baseURL + "/auth/refresh") else {
+                return false
+            }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = HTTPMethod.POST.rawValue
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let encoder = JSONEncoder()
+            request.httpBody = try encoder.encode(refreshRequest)
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200 else {
+                // Refresh failed, clear tokens
+                keychainService.clearTokens()
+                return false
+            }
+            
+            let decoder = JSONDecoder()
+            let authResponse: AuthResponse = try decoder.decode(AuthResponse.self, from: data)
+            
+            // Store new tokens
+            keychainService.storeTokens(
+                accessToken: authResponse.accessToken,
+                refreshToken: authResponse.refreshToken
+            )
+            
+            return true
+            
+        } catch {
+            // Refresh failed, clear tokens
+            keychainService.clearTokens()
+            return false
+        }
     }
 }

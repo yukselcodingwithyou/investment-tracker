@@ -37,6 +37,14 @@ struct SignUpRequest: Codable {
     let confirmPassword: String
 }
 
+struct RefreshTokenRequest: Codable {
+    let refreshToken: String
+}
+
+struct ForgotPasswordRequest: Codable {
+    let email: String
+}
+
 // MARK: - Portfolio Models
 struct PortfolioSummary: Codable {
     let totalValueTRY: Decimal

@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -25,6 +26,7 @@ public class PortfolioService {
 
     private final AcquisitionLotRepository acquisitionLotRepository;
     private final AssetRepository assetRepository;
+    private final PriceService priceService;
 
     @Transactional
     public AcquisitionLot addAcquisition(AcquisitionRequest request) {
@@ -61,20 +63,73 @@ public class PortfolioService {
     public PortfolioSummaryResponse getPortfolioSummary() {
         String userId = getCurrentUserId();
         
-        // TODO: Implement portfolio calculation with real price data
-        // For now, return a sample response
-        PortfolioSummaryResponse response = new PortfolioSummaryResponse();
-        response.setTotalValueTRY(BigDecimal.valueOf(100000));
-        response.setTodayChangePercent(BigDecimal.valueOf(2.5));
-        response.setTotalUnrealizedPLTRY(BigDecimal.valueOf(5000));
-        response.setTotalUnrealizedPLPercent(BigDecimal.valueOf(5.26));
-        response.setStatus("UP");
-        response.setEstimatedProceedsTRY(BigDecimal.valueOf(95000));
-        response.setCostBasisTRY(BigDecimal.valueOf(90000));
-        response.setUnrealizedGainLossTRY(BigDecimal.valueOf(5000));
-        response.setUnrealizedGainLossPercent(BigDecimal.valueOf(5.56));
-        response.setFxInfluenceTRY(BigDecimal.valueOf(1000));
+        // Get all acquisitions for the user
+        List<AcquisitionLot> acquisitions = acquisitionLotRepository.findByUserId(userId);
         
+        if (acquisitions.isEmpty()) {
+            // Return empty portfolio if no acquisitions
+            return createEmptyPortfolioSummary();
+        }
+        
+        // Calculate portfolio metrics
+        BigDecimal totalCostBasis = BigDecimal.ZERO;
+        BigDecimal totalCurrentValue = BigDecimal.ZERO;
+        BigDecimal totalFees = BigDecimal.ZERO;
+        
+        for (AcquisitionLot acquisition : acquisitions) {
+            // Calculate cost basis for this acquisition
+            BigDecimal acquisitionCost = acquisition.getQuantity()
+                    .multiply(acquisition.getUnitPrice())
+                    .add(acquisition.getFee());
+            totalCostBasis = totalCostBasis.add(acquisitionCost);
+            totalFees = totalFees.add(acquisition.getFee());
+            
+            // Get current price and calculate current value
+            BigDecimal currentPrice = priceService.getCurrentPrice(acquisition.getAssetId(), "TRY");
+            BigDecimal currentValue = acquisition.getQuantity().multiply(currentPrice);
+            totalCurrentValue = totalCurrentValue.add(currentValue);
+        }
+        
+        // Calculate profit/loss metrics
+        BigDecimal unrealizedGainLoss = totalCurrentValue.subtract(totalCostBasis);
+        BigDecimal unrealizedGainLossPercent = totalCostBasis.compareTo(BigDecimal.ZERO) > 0 
+                ? unrealizedGainLoss.multiply(BigDecimal.valueOf(100)).divide(totalCostBasis, 2, BigDecimal.ROUND_HALF_UP)
+                : BigDecimal.ZERO;
+        
+        // Determine status
+        String status = unrealizedGainLoss.compareTo(BigDecimal.ZERO) >= 0 ? "UP" : "DOWN";
+        
+        // Create response
+        PortfolioSummaryResponse response = new PortfolioSummaryResponse();
+        response.setTotalValueTRY(totalCurrentValue);
+        response.setTodayChangePercent(BigDecimal.ZERO); // TODO: Calculate daily change
+        response.setTotalUnrealizedPLTRY(unrealizedGainLoss);
+        response.setTotalUnrealizedPLPercent(unrealizedGainLossPercent);
+        response.setStatus(status);
+        response.setEstimatedProceedsTRY(totalCurrentValue.subtract(totalFees)); // Subtract fees for proceeds
+        response.setCostBasisTRY(totalCostBasis);
+        response.setUnrealizedGainLossTRY(unrealizedGainLoss);
+        response.setUnrealizedGainLossPercent(unrealizedGainLossPercent);
+        response.setFxInfluenceTRY(BigDecimal.ZERO); // TODO: Calculate FX influence
+        
+        log.info("Portfolio summary calculated for user {}: Total Value = {}, P&L = {}", 
+                userId, totalCurrentValue, unrealizedGainLoss);
+        
+        return response;
+    }
+    
+    private PortfolioSummaryResponse createEmptyPortfolioSummary() {
+        PortfolioSummaryResponse response = new PortfolioSummaryResponse();
+        response.setTotalValueTRY(BigDecimal.ZERO);
+        response.setTodayChangePercent(BigDecimal.ZERO);
+        response.setTotalUnrealizedPLTRY(BigDecimal.ZERO);
+        response.setTotalUnrealizedPLPercent(BigDecimal.ZERO);
+        response.setStatus("NEUTRAL");
+        response.setEstimatedProceedsTRY(BigDecimal.ZERO);
+        response.setCostBasisTRY(BigDecimal.ZERO);
+        response.setUnrealizedGainLossTRY(BigDecimal.ZERO);
+        response.setUnrealizedGainLossPercent(BigDecimal.ZERO);
+        response.setFxInfluenceTRY(BigDecimal.ZERO);
         return response;
     }
 

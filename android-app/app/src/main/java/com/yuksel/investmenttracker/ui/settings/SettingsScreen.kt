@@ -20,6 +20,14 @@ fun SettingsScreen(
 ) {
     val authState by authViewModel.authState.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showCurrencyDialog by remember { mutableStateOf(false) }
+    var showTimezoneDialog by remember { mutableStateOf(false) }
+    var showImportDialog by remember { mutableStateOf(false) }
+    var showExportDialog by remember { mutableStateOf(false) }
+    var showBackupDialog by remember { mutableStateOf(false) }
+    var showPrivacyDialog by remember { mutableStateOf(false) }
+    var showTermsDialog by remember { mutableStateOf(false) }
+    var showDisclaimersDialog by remember { mutableStateOf(false) }
     
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -50,7 +58,7 @@ fun SettingsScreen(
                 icon = Icons.Default.AttachMoney,
                 title = "Base Currency",
                 subtitle = "TRY",
-                onClick = { /* TODO */ }
+                onClick = { showCurrencyDialog = true }
             )
         }
         
@@ -59,7 +67,7 @@ fun SettingsScreen(
                 icon = Icons.Default.Schedule,
                 title = "Timezone",
                 subtitle = "Europe/Istanbul",
-                onClick = { /* TODO */ }
+                onClick = { showTimezoneDialog = true }
             )
         }
         
@@ -78,7 +86,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.Download,
                 title = "Import from CSV",
-                onClick = { /* TODO */ }
+                onClick = { showImportDialog = true }
             )
         }
         
@@ -86,7 +94,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.Upload,
                 title = "Export to CSV",
-                onClick = { /* TODO */ }
+                onClick = { showExportDialog = true }
             )
         }
         
@@ -94,7 +102,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.Backup,
                 title = "Backup",
-                onClick = { /* TODO */ }
+                onClick = { showBackupDialog = true }
             )
         }
         
@@ -113,7 +121,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.PrivacyTip,
                 title = "Privacy Policy",
-                onClick = { /* TODO */ }
+                onClick = { showPrivacyDialog = true }
             )
         }
         
@@ -121,7 +129,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.Description,
                 title = "Terms of Service",
-                onClick = { /* TODO */ }
+                onClick = { showTermsDialog = true }
             )
         }
         
@@ -129,7 +137,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.Warning,
                 title = "Disclaimers",
-                onClick = { /* TODO */ }
+                onClick = { showDisclaimersDialog = true }
             )
         }
         
@@ -197,6 +205,118 @@ fun SettingsScreen(
                     onClick = { showLogoutDialog = false }
                 ) {
                     Text("Cancel")
+                }
+            }
+        )
+    }
+    
+    // Currency Selection Dialog
+    if (showCurrencyDialog) {
+        AlertDialog(
+            onDismissRequest = { showCurrencyDialog = false },
+            title = { Text("Base Currency") },
+            text = { Text("Currency selection feature will be implemented in a future update.") },
+            confirmButton = {
+                TextButton(onClick = { showCurrencyDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+    
+    // Timezone Selection Dialog
+    if (showTimezoneDialog) {
+        AlertDialog(
+            onDismissRequest = { showTimezoneDialog = false },
+            title = { Text("Timezone") },
+            text = { Text("Timezone selection feature will be implemented in a future update.") },
+            confirmButton = {
+                TextButton(onClick = { showTimezoneDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+    
+    // Import CSV Dialog
+    if (showImportDialog) {
+        AlertDialog(
+            onDismissRequest = { showImportDialog = false },
+            title = { Text("Import from CSV") },
+            text = { Text("CSV import feature will be implemented in a future update.") },
+            confirmButton = {
+                TextButton(onClick = { showImportDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+    
+    // Export CSV Dialog
+    if (showExportDialog) {
+        AlertDialog(
+            onDismissRequest = { showExportDialog = false },
+            title = { Text("Export to CSV") },
+            text = { Text("CSV export feature will be implemented in a future update.") },
+            confirmButton = {
+                TextButton(onClick = { showExportDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+    
+    // Backup Dialog
+    if (showBackupDialog) {
+        AlertDialog(
+            onDismissRequest = { showBackupDialog = false },
+            title = { Text("Backup") },
+            text = { Text("Backup feature will be implemented in a future update.") },
+            confirmButton = {
+                TextButton(onClick = { showBackupDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+    
+    // Privacy Policy Dialog
+    if (showPrivacyDialog) {
+        AlertDialog(
+            onDismissRequest = { showPrivacyDialog = false },
+            title = { Text("Privacy Policy") },
+            text = { Text("Privacy policy will be available in a future update.") },
+            confirmButton = {
+                TextButton(onClick = { showPrivacyDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+    
+    // Terms of Service Dialog
+    if (showTermsDialog) {
+        AlertDialog(
+            onDismissRequest = { showTermsDialog = false },
+            title = { Text("Terms of Service") },
+            text = { Text("Terms of service will be available in a future update.") },
+            confirmButton = {
+                TextButton(onClick = { showTermsDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+    
+    // Disclaimers Dialog
+    if (showDisclaimersDialog) {
+        AlertDialog(
+            onDismissRequest = { showDisclaimersDialog = false },
+            title = { Text("Disclaimers") },
+            text = { Text("Legal disclaimers will be available in a future update.") },
+            confirmButton = {
+                TextButton(onClick = { showDisclaimersDialog = false }) {
+                    Text("OK")
                 }
             }
         )

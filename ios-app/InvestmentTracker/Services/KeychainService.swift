@@ -14,6 +14,10 @@ class KeychainService {
         saveToKeychain(key: refreshTokenKey, value: refreshToken)
     }
     
+    func storeTokens(accessToken: String, refreshToken: String) {
+        saveTokens(accessToken: accessToken, refreshToken: refreshToken)
+    }
+    
     func getAccessToken() -> String? {
         return getFromKeychain(key: accessTokenKey)
     }

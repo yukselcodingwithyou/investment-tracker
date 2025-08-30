@@ -21,6 +21,8 @@ fun AuthScreen(
 ) {
     var isLoginMode by remember { mutableStateOf(true) }
     val authState by authViewModel.authState.collectAsState()
+    var showForgotPasswordDialog by remember { mutableStateOf(false) }
+    var forgotPasswordEmail by remember { mutableStateOf("") }
     
     // Show error message if any
     LaunchedEffect(authState.errorMessage) {
@@ -74,6 +76,51 @@ fun AuthScreen(
             )
         }
     }
+    
+    // Forgot Password Dialog
+    if (showForgotPasswordDialog) {
+        AlertDialog(
+            onDismissRequest = { showForgotPasswordDialog = false },
+            title = { Text("Forgot Password") },
+            text = {
+                Column {
+                    Text("Enter your email address and we'll send you instructions to reset your password.")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        value = forgotPasswordEmail,
+                        onValueChange = { forgotPasswordEmail = it },
+                        label = { Text("Email") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (forgotPasswordEmail.isNotBlank()) {
+                            // For now, just show a success message
+                            authViewModel.handleOAuthError("Password reset instructions would be sent to $forgotPasswordEmail")
+                            showForgotPasswordDialog = false
+                            forgotPasswordEmail = ""
+                        }
+                    }
+                ) {
+                    Text("Send Reset Link")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { 
+                        showForgotPasswordDialog = false 
+                        forgotPasswordEmail = ""
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -119,7 +166,7 @@ private fun LoginForm(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            TextButton(onClick = { /* TODO: Implement forgot password */ }) {
+            TextButton(onClick = { showForgotPasswordDialog = true }) {
                 Text("Forgot Password?")
             }
         }
@@ -184,7 +231,10 @@ private fun LoginForm(
         
         // Social login buttons
         OutlinedButton(
-            onClick = { /* TODO: Implement Google Sign In */ },
+            onClick = { 
+                // Google Sign In placeholder - would require Google Sign-In SDK
+                authViewModel.handleOAuthError("Google Sign-In not yet implemented. Please configure Google Sign-In SDK.")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
@@ -195,7 +245,10 @@ private fun LoginForm(
         Spacer(modifier = Modifier.height(12.dp))
         
         Button(
-            onClick = { /* TODO: Implement Apple Sign In */ },
+            onClick = { 
+                // Apple Sign In placeholder - would require Apple Sign-In
+                authViewModel.handleOAuthError("Apple Sign-In not yet implemented. Apple Sign-In is only available on iOS.")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -356,7 +409,10 @@ private fun SignUpForm(
         
         // Social login buttons
         OutlinedButton(
-            onClick = { /* TODO: Implement Google Sign In */ },
+            onClick = { 
+                // Google Sign In placeholder - would require Google Sign-In SDK
+                authViewModel.handleOAuthError("Google Sign-In not yet implemented. Please configure Google Sign-In SDK.")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
@@ -367,7 +423,10 @@ private fun SignUpForm(
         Spacer(modifier = Modifier.height(12.dp))
         
         Button(
-            onClick = { /* TODO: Implement Apple Sign In */ },
+            onClick = { 
+                // Apple Sign In placeholder - would require Apple Sign-In
+                authViewModel.handleOAuthError("Apple Sign-In not yet implemented. Apple Sign-In is only available on iOS.")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
