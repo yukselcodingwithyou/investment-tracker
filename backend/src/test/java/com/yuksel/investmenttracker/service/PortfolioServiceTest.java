@@ -2,11 +2,13 @@ package com.yuksel.investmenttracker.service;
 
 import com.yuksel.investmenttracker.domain.entity.AcquisitionLot;
 import com.yuksel.investmenttracker.domain.entity.Asset;
+import com.yuksel.investmenttracker.domain.entity.PriceSnapshot;
 import com.yuksel.investmenttracker.domain.enums.AssetType;
 import com.yuksel.investmenttracker.dto.response.PortfolioAnalyticsResponse;
 import com.yuksel.investmenttracker.dto.response.PortfolioSummaryResponse;
 import com.yuksel.investmenttracker.repository.AcquisitionLotRepository;
 import com.yuksel.investmenttracker.repository.AssetRepository;
+import com.yuksel.investmenttracker.repository.PriceSnapshotRepository;
 import com.yuksel.investmenttracker.security.UserPrincipal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +31,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +46,9 @@ class PortfolioServiceTest {
 
     @Mock
     private PriceService priceService;
+
+    @Mock
+    private PriceSnapshotRepository priceSnapshotRepository;
 
     @Mock
     private SecurityContext securityContext;
@@ -93,6 +100,14 @@ class PortfolioServiceTest {
         List<AcquisitionLot> acquisitions = createMockAcquisitions();
         when(acquisitionLotRepository.findByUserId(TEST_USER_ID)).thenReturn(acquisitions);
         when(priceService.getCurrentPrice(anyString(), anyString())).thenReturn(BigDecimal.valueOf(110.0));
+        
+        // Mock price snapshots for daily change calculation
+        PriceSnapshot currentSnapshot = new PriceSnapshot();
+        currentSnapshot.setAssetId(TEST_ASSET_ID);
+        currentSnapshot.setPrice(BigDecimal.valueOf(110.0));
+        currentSnapshot.setAsOf(LocalDateTime.now());
+        when(priceSnapshotRepository.findLatestByAssetId(anyString())).thenReturn(Optional.of(currentSnapshot));
+        when(priceSnapshotRepository.findByAssetIdAndAsOfBetween(anyString(), any(), any())).thenReturn(List.of());
 
         // When
         PortfolioSummaryResponse result = portfolioService.getPortfolioSummary();
