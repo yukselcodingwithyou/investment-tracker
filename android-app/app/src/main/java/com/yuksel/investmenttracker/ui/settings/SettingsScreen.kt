@@ -2,6 +2,7 @@ package com.yuksel.investmenttracker.ui.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -11,14 +12,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.yuksel.investmenttracker.ui.auth.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    authViewModel: AuthViewModel = hiltViewModel()
+    authViewModel: AuthViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
     val authState by authViewModel.authState.collectAsState()
+    val uiState by settingsViewModel.uiState.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showCurrencyDialog by remember { mutableStateOf(false) }
     var showTimezoneDialog by remember { mutableStateOf(false) }
@@ -57,7 +61,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.AttachMoney,
                 title = "Base Currency",
-                subtitle = "TRY",
+                subtitle = uiState.baseCurrency,
                 onClick = { showCurrencyDialog = true }
             )
         }
@@ -66,7 +70,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.Schedule,
                 title = "Timezone",
-                subtitle = "Europe/Istanbul",
+                subtitle = uiState.timezone,
                 onClick = { showTimezoneDialog = true }
             )
         }
@@ -86,7 +90,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.Download,
                 title = "Import from CSV",
-                onClick = { showImportDialog = true }
+                onClick = { settingsViewModel.importData() }
             )
         }
         
@@ -94,7 +98,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.Upload,
                 title = "Export to CSV",
-                onClick = { showExportDialog = true }
+                onClick = { settingsViewModel.exportData() }
             )
         }
         
@@ -102,7 +106,7 @@ fun SettingsScreen(
             SettingsItem(
                 icon = Icons.Default.Backup,
                 title = "Backup",
-                onClick = { showBackupDialog = true }
+                onClick = { settingsViewModel.performBackup() }
             )
         }
         
@@ -212,13 +216,33 @@ fun SettingsScreen(
     
     // Currency Selection Dialog
     if (showCurrencyDialog) {
+        val currencies = listOf("TRY", "USD", "EUR", "GBP", "JPY")
+        
         AlertDialog(
             onDismissRequest = { showCurrencyDialog = false },
-            title = { Text("Base Currency") },
-            text = { Text("Currency selection feature will be implemented in a future update.") },
+            title = { Text("Select Base Currency") },
+            text = {
+                LazyColumn {
+                    items(currencies.size) { index ->
+                        val currency = currencies[index]
+                        TextButton(
+                            onClick = {
+                                settingsViewModel.changeCurrency(currency)
+                                showCurrencyDialog = false
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = currency,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(onClick = { showCurrencyDialog = false }) {
-                    Text("OK")
+                    Text("Cancel")
                 }
             }
         )
@@ -226,13 +250,39 @@ fun SettingsScreen(
     
     // Timezone Selection Dialog
     if (showTimezoneDialog) {
+        val timezones = listOf(
+            "Europe/Istanbul",
+            "America/New_York", 
+            "Europe/London",
+            "Asia/Tokyo",
+            "Europe/Berlin"
+        )
+        
         AlertDialog(
             onDismissRequest = { showTimezoneDialog = false },
-            title = { Text("Timezone") },
-            text = { Text("Timezone selection feature will be implemented in a future update.") },
+            title = { Text("Select Timezone") },
+            text = {
+                LazyColumn {
+                    items(timezones.size) { index ->
+                        val timezone = timezones[index]
+                        TextButton(
+                            onClick = {
+                                settingsViewModel.changeTimezone(timezone)
+                                showTimezoneDialog = false
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = timezone,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(onClick = { showTimezoneDialog = false }) {
-                    Text("OK")
+                    Text("Cancel")
                 }
             }
         )
@@ -320,6 +370,19 @@ fun SettingsScreen(
                 }
             }
         )
+    }
+    
+    // Show messages
+    LaunchedEffect(uiState.successMessage, uiState.errorMessage) {
+        if (uiState.successMessage != null) {
+            // In a real implementation, you would show a Snackbar here
+            kotlinx.coroutines.delay(3000)
+            settingsViewModel.clearMessages()
+        } else if (uiState.errorMessage != null) {
+            // In a real implementation, you would show an error Snackbar here
+            kotlinx.coroutines.delay(3000)
+            settingsViewModel.clearMessages()
+        }
     }
 }
 
