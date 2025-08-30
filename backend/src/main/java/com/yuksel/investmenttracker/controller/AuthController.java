@@ -1,8 +1,10 @@
 package com.yuksel.investmenttracker.controller;
 
 import com.yuksel.investmenttracker.domain.enums.OAuthProvider;
+import com.yuksel.investmenttracker.dto.request.ForgotPasswordRequest;
 import com.yuksel.investmenttracker.dto.request.LoginRequest;
 import com.yuksel.investmenttracker.dto.request.OAuthLoginRequest;
+import com.yuksel.investmenttracker.dto.request.ResetPasswordRequest;
 import com.yuksel.investmenttracker.dto.request.SignUpRequest;
 import com.yuksel.investmenttracker.dto.response.AuthResponse;
 import com.yuksel.investmenttracker.dto.response.UserResponse;
@@ -53,16 +55,20 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     @Operation(summary = "Send password reset email")
-    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
-        // TODO: Implement forgot password functionality
-        return ResponseEntity.ok("Check your email for reset instructions.");
+    public ResponseEntity<String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.sendPasswordResetEmail(request.getEmail());
+        return ResponseEntity.ok("Password reset email sent. Check your email for instructions.");
     }
 
     @PostMapping("/reset-password")
     @Operation(summary = "Reset password with token")
-    public ResponseEntity<String> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
-        // TODO: Implement password reset functionality
-        return ResponseEntity.ok("Password reset successfully.");
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            return ResponseEntity.badRequest().body("Passwords do not match");
+        }
+        
+        authService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok("Password reset successfully. Please login with your new password.");
     }
 
     @GetMapping("/me")
