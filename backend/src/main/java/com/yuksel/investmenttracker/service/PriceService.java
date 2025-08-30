@@ -4,7 +4,10 @@ import com.yuksel.investmenttracker.domain.entity.PriceSnapshot;
 import com.yuksel.investmenttracker.repository.PriceSnapshotRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,6 +20,8 @@ public class PriceService {
 
     private final PriceSnapshotRepository priceSnapshotRepository;
 
+    @Cacheable(value = "current-prices", key = "#assetId + '_' + #currency", 
+               cacheManager = "pricesCacheManager")
     public BigDecimal getCurrentPrice(String assetId, String currency) {
         Optional<PriceSnapshot> latestPrice = priceSnapshotRepository.findLatestByAssetId(assetId);
         
@@ -34,6 +39,8 @@ public class PriceService {
         }
     }
 
+    @CacheEvict(value = "current-prices", key = "#assetId + '_*'", 
+                cacheManager = "pricesCacheManager")
     public void updatePriceForAsset(String assetId, BigDecimal price, String currency, String source) {
         PriceSnapshot priceSnapshot = new PriceSnapshot();
         priceSnapshot.setAssetId(assetId);

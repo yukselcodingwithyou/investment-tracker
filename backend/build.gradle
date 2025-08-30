@@ -60,7 +60,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.testcontainers:mongodb'
     testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.9.0'
 }
 
 tasks.named('test') {

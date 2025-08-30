@@ -1,2 +1,4 @@
 rootProject.name = 'investment-tracker'
 include 'backend'
+
+// Android app configuration would be in separate settings.gradle in android-app directory

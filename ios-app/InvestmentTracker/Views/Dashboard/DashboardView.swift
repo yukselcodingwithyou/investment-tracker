@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
+    @StateObject private var chartService = ChartService.shared
     @State private var showingAddAcquisition = false
     
     var body: some View {
@@ -31,6 +32,7 @@ struct DashboardView: View {
             }
             .refreshable {
                 await viewModel.loadPortfolioSummary()
+                await chartService.fetchComprehensiveAnalytics()
             }
             .sheet(isPresented: $showingAddAcquisition) {
                 AddAcquisitionView()
@@ -38,6 +40,7 @@ struct DashboardView: View {
         }
         .task {
             await viewModel.loadPortfolioSummary()
+            await chartService.fetchComprehensiveAnalytics()
         }
     }
     
@@ -95,13 +98,13 @@ struct DashboardView: View {
                 liquidationCard(summary)
                 
                 // Portfolio Value Chart
-                portfolioChartCard
+                PortfolioLineChart(data: chartService.portfolioHistory)
                 
                 // Allocation Chart
-                allocationChartCard
+                AssetAllocationPieChart(data: chartService.assetAllocation)
                 
                 // Top Movers
-                topMoversCard
+                TopMoversView(topMovers: chartService.topMovers)
             }
         }
     }
@@ -205,110 +208,6 @@ struct DashboardView: View {
         .background(Color.white)
         .cornerRadius(16)
         .shadow(radius: 2)
-    }
-    
-    private var portfolioChartCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Portfolio Value")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            // Chart placeholder
-            Rectangle()
-                .frame(height: 200)
-                .foregroundColor(Color.blue.opacity(0.1))
-                .cornerRadius(8)
-                .overlay(
-                    Text("Chart Placeholder")
-                        .foregroundColor(.blue)
-                )
-            
-            // Time period selector
-            HStack {
-                ForEach(["30D", "90D"], id: \.self) { period in
-                    Button(period) {
-                        // Handle period selection
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(period == "30D" ? Color.blue : Color.clear)
-                    .foregroundColor(period == "30D" ? .white : .blue)
-                    .cornerRadius(20)
-                }
-                Spacer()
-            }
-        }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(radius: 2)
-    }
-    
-    private var allocationChartCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Allocation")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            // Pie chart placeholder
-            Circle()
-                .frame(width: 150, height: 150)
-                .foregroundColor(Color.orange.opacity(0.3))
-                .overlay(
-                    Text("Pie Chart\nPlaceholder")
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.orange)
-                )
-            
-            // Legend placeholder
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Circle()
-                        .frame(width: 12, height: 12)
-                        .foregroundColor(.blue)
-                    Text("Precious Metals")
-                        .font(.caption)
-                }
-                HStack {
-                    Circle()
-                        .frame(width: 12, height: 12)
-                        .foregroundColor(.green)
-                    Text("Equities")
-                        .font(.caption)
-                }
-            }
-        }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(radius: 2)
-    }
-    
-    private var topMoversCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Top 5 Movers Today")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            VStack(spacing: 8) {
-                ForEach(1...3, id: \.self) { index in
-                    HStack {
-                        Text("Asset \(index)")
-                            .font(.subheadline)
-                        Spacer()
-                        Text("+₺12.34")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                            .foregroundColor(.green)
-                    }
-                }
-            }
-        }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(radius: 2)
-    }
 }
 
 #Preview {
